@@ -1,5 +1,5 @@
 import { FumoData } from "fumo-api"
-import { APIEmbed, APIInteractionResponseCallbackData } from "discord-api-types"
+import { APIEmbed, APIInteractionResponseCallbackData, MessageFlags } from "discord-api-types"
 import { Emojis, videoExtensions } from "."
 
 export function embeddable(link: string) {
@@ -20,7 +20,8 @@ export function baseEmbed(id: string): APIEmbed {
 
 export function makeResponseData(fumo?: FumoData): APIInteractionResponseCallbackData {
     if (!fumo) return {
-        content: `${Emojis.error} Fumo not found.`
+        content: `${Emojis.error} Fumo not found.`,
+        flags: MessageFlags.Ephemeral
     }
 
     const data: APIInteractionResponseCallbackData = embeddable(fumo.URL)
