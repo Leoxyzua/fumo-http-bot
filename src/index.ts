@@ -7,13 +7,15 @@ import {
     ApplicationCommandOptionType,
     ApplicationCommandInteractionDataOptionString,
     InteractionResponseType,
-    MessageFlags
+    MessageFlags,
+    APIInteractionResponseCallbackData
 } from "discord-api-types/v9"
 import express, { Request } from "express"
 import { verifyKey } from "discord-interactions"
 import { FumoClient } from "fumo-api"
-import { Emojis, Invite, logger, interactionsLogger } from "./utils"
+import { Emojis, invite, logger, interactionsLogger, baseEmbed } from "./utils"
 import bodyParser from "body-parser"
+import { embeddable } from "./utils/tools"
 
 const client = new FumoClient(true)
 const app = express()
@@ -66,15 +68,19 @@ const app = express()
 
                 case 'random': {
                     const fumo = client.cache.random
+                    const data: APIInteractionResponseCallbackData = embeddable(fumo.URL)
+                        ? {
+                            embeds: [{
+                                image: {
+                                    url: fumo.URL
+                                },
+                                ...baseEmbed(fumo._id)
+                            }]
+                        } : { content: fumo.URL, embeds: [baseEmbed(fumo._id)] }
+
                     return res.json({
                         type: InteractionResponseType.ChannelMessageWithSource,
-                        data: {
-                            embeds: [{
-                                image: { url: fumo.URL },
-                                color: 0x2F3136,
-                                footer: { text: `ID: ${fumo._id}` }
-                            }]
-                        }
+                        data
                     })
                 }
 
@@ -93,7 +99,7 @@ const app = express()
                     return res.json({
                         type: InteractionResponseType.ChannelMessageWithSource,
                         data: {
-                            content: `Invite me: [click here](${Invite})`,
+                            content: `Invite me: [click here](${invite})`,
                             flags: MessageFlags.Ephemeral
                         }
                     })
