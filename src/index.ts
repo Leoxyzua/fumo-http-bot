@@ -13,7 +13,7 @@ import {
 import express, { Request } from "express"
 import { verifyKey } from "discord-interactions"
 import { FumoClient } from "fumo-api"
-import { Emojis, invite, logger, interactionsLogger, baseEmbed } from "./utils"
+import { Emojis, invite, logger, interactionsLogger, makeResponseData } from "./utils"
 import bodyParser from "body-parser"
 import { embeddable } from "./utils/tools"
 
@@ -47,40 +47,21 @@ const app = express()
                 case 'get': {
                     const id = data.options
                         ?.find((option) => option.type === ApplicationCommandOptionType.String) as ApplicationCommandInteractionDataOptionString
-                    const fumo = client.cache.get(id.value)
 
-                    if (!fumo) return res.json({
-                        type: InteractionResponseType.ChannelMessageWithSource,
-                        data: {
-                            content: `${Emojis.error} Fumo not found.`,
-                            flags: MessageFlags.Ephemeral
-                        }
-                    })
+                    const fumo = client.cache.get(id.value)
 
                     return res.json({
                         type: InteractionResponseType.ChannelMessageWithSource,
-                        data: {
-                            content: fumo.URL,
-                            flags: MessageFlags.Ephemeral
-                        }
+                        data: makeResponseData(fumo)
                     })
                 }
 
                 case 'random': {
                     const fumo = client.cache.random
-                    const data: APIInteractionResponseCallbackData = embeddable(fumo.URL)
-                        ? {
-                            embeds: [{
-                                image: {
-                                    url: fumo.URL
-                                },
-                                ...baseEmbed(fumo._id)
-                            }]
-                        } : { content: fumo.URL, embeds: [baseEmbed(fumo._id)] }
 
                     return res.json({
                         type: InteractionResponseType.ChannelMessageWithSource,
-                        data
+                        data: makeResponseData(fumo)
                     })
                 }
 
