@@ -1,0 +1,30 @@
+{
+  "name": "http-bot",
+  "version": "1.0.0",
+  "description": "A Discord HTTP Bot",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node .",
+    "deploy": "ts-node-dev src/deploy.ts",
+    "build": "tsc"
+  },
+  "author": "Leoxyzua",
+  "license": "MIT",
+  "dependencies": {
+    "@dimensional-fun/logger": "^1.0.1",
+    "body-parser": "^1.19.0",
+    "discord-api-types": "^0.25.2",
+    "discord-interactions": "^2.4.1",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "fumo-api": "Leoxyzua/fumo-api#master"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.11.11",
+    "ts-node": "^10.4.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.2"
+  }
+}

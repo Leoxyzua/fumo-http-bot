@@ -1,0 +1,105 @@
+import "dotenv/config"
+import {
+    APIInteractionResponse,
+    APIInteraction,
+    InteractionType,
+    APIChatInputApplicationCommandInteraction,
+    ApplicationCommandOptionType,
+    ApplicationCommandInteractionDataOptionString,
+    InteractionResponseType,
+    MessageFlags
+} from "discord-api-types/v9"
+import express, { Request } from "express"
+import { verifyKey } from "discord-interactions"
+import { FumoClient } from "fumo-api"
+import { Emojis, Invite, logger, interactionsLogger } from "./utils"
+import bodyParser from "body-parser"
+
+const client = new FumoClient(true)
+const app = express()
+    .use(bodyParser.json())
+    .get('/', (req, res) => res.send('this fumo is r'))
+    .post("/fumos", (req: Request<never, APIInteractionResponse, APIInteraction>, res) => {
+        const signature = req.headers["x-signature-ed25519"] as string
+        const timestamp = req.headers["x-signature-timestamp"] as string
+
+        if (!verifyKey(
+            JSON.stringify(req.body),
+            signature,
+            timestamp,
+            process.env.PUBLIC_KEY!
+        )) return res.status(401).end()
+
+        if (req.body.type === InteractionType.Ping) {
+            interactionsLogger.info('got a pong interaction')
+            return res.json({ type: 1 })
+        }
+
+        else if (req.body.type === InteractionType.ApplicationCommand) {
+            const { data, member, user, guild_id } = req.body as APIChatInputApplicationCommandInteraction
+            const author = guild_id ? member?.user : user
+
+            interactionsLogger.info(`user: ${author?.username}#${author?.discriminator} [${author?.id}], command ${data.name}, guild id: ${guild_id}`)
+
+            switch (data.name) {
+                case 'get': {
+                    const id = data.options
+                        ?.find((option) => option.type === ApplicationCommandOptionType.String) as ApplicationCommandInteractionDataOptionString
+                    const fumo = client.cache.get(id.value)
+
+                    if (!fumo) return res.json({
+                        type: InteractionResponseType.ChannelMessageWithSource,
+                        data: {
+                            content: `${Emojis.error} Fumo not found.`,
+                            flags: MessageFlags.Ephemeral
+                        }
+                    })
+
+                    return res.json({
+                        type: InteractionResponseType.ChannelMessageWithSource,
+                        data: {
+                            content: fumo.URL,
+                            flags: MessageFlags.Ephemeral
+                        }
+                    })
+                }
+
+                case 'random': {
+                    const fumo = client.cache.random
+                    return res.json({
+                        type: InteractionResponseType.ChannelMessageWithSource,
+                        data: {
+                            embeds: [{
+                                image: { url: fumo.URL },
+                                color: 0x2F3136,
+                                footer: { text: `ID: ${fumo._id}` }
+                            }]
+                        }
+                    })
+                }
+
+                case 'list': {
+                    const fumos = client.cache.list
+                    return res.json({
+                        type: InteractionResponseType.ChannelMessageWithSource,
+                        data: {
+                            content: `There are a total of **${fumos.length}** fumos, find them with \`/random\`!`,
+                            flags: MessageFlags.Ephemeral
+                        }
+                    })
+                }
+
+                case 'invite': {
+                    return res.json({
+                        type: InteractionResponseType.ChannelMessageWithSource,
+                        data: {
+                            content: `Invite me: [click here](${Invite})`,
+                            flags: MessageFlags.Ephemeral
+                        }
+                    })
+                }
+            }
+        }
+    })
+
+app.listen(3000, () => logger.info('ready'))
