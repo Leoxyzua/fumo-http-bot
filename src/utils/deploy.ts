@@ -1,6 +1,7 @@
 import "dotenv/config"
 import { APIApplicationCommand, ApplicationCommandOptionType } from "discord-api-types"
 import fetch from "node-fetch"
+import { logger } from "."
 const { DISCORD_CLIENT_ID, DISCORD_BOT_TOKEN, DISCORD_GUILD_ID } = process.env
 
 const data = [
@@ -48,9 +49,9 @@ async function deploy() {
 }
 
 deploy().then(async (res) => {
-    if (res.ok) console.log('deployed cmds')
+    if (res.ok) logger.info('deployed cmds')
     else {
-        console.log('failed to deploy')
+        logger.error('failed to deploy')
         const json = await res.json()
         console.dir(json, { depth: 7 })
     }
