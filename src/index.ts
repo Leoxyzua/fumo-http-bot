@@ -48,7 +48,7 @@ const app = express()
                     const { value } = data.options
                         ?.find((option) => option.type === ApplicationCommandOptionType.String) as ApplicationCommandInteractionDataOptionString
 
-                    const fumo = client.cache.get(value) || client.cache.list[parseInt(value) + 1]
+                    const fumo = client.cache.get(value) || client.cache.list[parseInt(value) - 1]
 
                     return res.json({
                         type: InteractionResponseType.ChannelMessageWithSource,
