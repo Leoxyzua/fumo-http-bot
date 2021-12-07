@@ -42,7 +42,7 @@ export function handleComponents(
             break
 
         case 'double_next':
-            page = Math.max(fumoClient.cache.size, page + 10)
+            page = Math.min(fumoClient.cache.size, page + 10)
             break
     }
 
