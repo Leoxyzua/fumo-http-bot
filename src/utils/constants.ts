@@ -6,6 +6,9 @@ export enum Emojis {
 
 export type ComponentActionName = 'double_previous' | 'previous' | 'cancel' | 'next' | 'double_next'
 
+/**
+ * Emojis taken from notsobot
+ */
 export const PaginatorEmojis: Array<{ name: ComponentActionName, id: string }> = [
     { name: 'double_previous', id: '848383585807106064' },
     { name: 'previous', id: '848383585962819585' },
