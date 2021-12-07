@@ -97,6 +97,7 @@ export function makePaginationResponseData(page: number, author_id: string): API
     return {
         content,
         embeds: [{
+            color: 0x2F3136,
             description: [
                 `**ID**: ${fumo._id}`,
                 `**URL**: [click here](${fumo.URL})`

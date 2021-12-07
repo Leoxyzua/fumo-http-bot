@@ -42,7 +42,6 @@ const app = express()
                     req as Request<never, never, APIMessageComponentInteraction>,
                     res
                 )
-                break
         }
     })
 
