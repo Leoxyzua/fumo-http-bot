@@ -17,10 +17,10 @@ export function handleComponents(
     req: Request<never, never, APIMessageComponentInteraction>,
     res: Response<APIInteractionResponse>
 ) {
-    const { data, user } = req.body
+    const { data, member } = req.body
     let { author_id, action, page } = decodeBuffer(data.custom_id) as CustomIdBufferObject
 
-    if (author_id !== user?.id) return res.json({
+    if (author_id !== member?.user?.id) return res.json({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
             content: `no lmao`,
