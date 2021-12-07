@@ -3,13 +3,14 @@ import {
     APIInteractionResponse,
     APIInteraction,
     InteractionType,
-    APIChatInputApplicationCommandInteraction
+    APIChatInputApplicationCommandInteraction,
+    APIMessageComponentInteraction
 } from "discord-api-types/v9"
 import express, { Request } from "express"
 import { verifyKey } from "discord-interactions"
 import { logger, interactionsLogger } from "./utils"
 import bodyParser from "body-parser"
-import { handleCommands } from "./interactions"
+import { handleCommands, handleComponents } from "./interactions"
 
 const app = express()
     .use(bodyParser.json())
@@ -37,6 +38,10 @@ const app = express()
                 )
 
             case InteractionType.MessageComponent:
+                return handleComponents(
+                    req as Request<never, never, APIMessageComponentInteraction>,
+                    res
+                )
                 break
         }
     })
