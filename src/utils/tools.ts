@@ -1,6 +1,15 @@
 import { FumoData } from "fumo-api"
-import { APIEmbed, APIInteractionResponseCallbackData, MessageFlags } from "discord-api-types"
-import { Emojis, videoExtensions } from "."
+import {
+    APIActionRowComponent,
+    APIButtonComponentWithCustomId,
+    APIEmbed,
+    APIInteractionResponseCallbackData,
+    APIUser,
+    ButtonStyle,
+    ComponentType,
+    MessageFlags
+} from "discord-api-types"
+import { Emojis, fumoClient, PaginatorEmojis, videoExtensions } from "."
 
 export function embeddable(link: string) {
     try {
@@ -18,7 +27,7 @@ export function baseEmbed(id: string): APIEmbed {
     }
 }
 
-export function makeResponseData(fumo?: FumoData): APIInteractionResponseCallbackData {
+export function makeFumoResponseData(fumo?: FumoData): APIInteractionResponseCallbackData {
     if (!fumo) return {
         content: `${Emojis.error} Fumo not found.`,
         flags: MessageFlags.Ephemeral
@@ -35,4 +44,63 @@ export function makeResponseData(fumo?: FumoData): APIInteractionResponseCallbac
         } : { content: fumo.URL, embeds: [baseEmbed(fumo._id)] }
 
     return data
+}
+
+/**
+ * Buffer stuff, taken from
+ * https://stackoverflow.com/questions/41951307/convert-a-json-object-to-buffer-and-buffer-to-json-object-back
+ */
+
+export function decodeBuffer(encoded: string) {
+    const buffer = Buffer.from(encoded, 'base64').toString('ascii')
+
+    return JSON.parse(buffer)
+}
+
+export function encodeBuffer(object: Record<any, unknown>) {
+    const stringBuffer = Buffer.from(JSON.stringify(object)).toString('base64')
+
+    return stringBuffer
+}
+
+export function buildPaginationComponents(page: number, author: APIUser): APIActionRowComponent {
+    const buttons: APIButtonComponentWithCustomId[] = PaginatorEmojis
+        .map(({ name, id }) => ({
+            custom_id: encodeBuffer({
+                page,
+                author,
+                action: name
+            }),
+            emoji: { id, name },
+            type: ComponentType.Button,
+            disabled:
+                (['double_previous', 'previous'].includes(name) && page === 1) ||
+                (['double_next', 'next'].includes(name) && page === fumoClient.cache.size),
+            style: name === 'cancel' ? ButtonStyle.Danger : ButtonStyle.Primary
+        }))
+
+    return {
+        type: ComponentType.ActionRow,
+        components: buttons
+    }
+}
+
+export function makePaginationResponseData(page: number, author: APIUser): APIInteractionResponseCallbackData {
+    const row = buildPaginationComponents(page, author)
+    const fumo = fumoClient.cache.list[page - 1]
+    let content = `Page **${page}** of **${fumoClient.cache.size}**`
+
+    if (!embeddable(fumo.URL)) content += `\n\n${fumo.URL}`
+
+    return {
+        content,
+        embeds: [{
+            description: [
+                `**ID**: ${fumo._id}`,
+                `**URL**: [click here](${fumo.URL})`
+            ].join('\n'),
+            image: content.endsWith('**') ? { url: fumo.URL } : undefined
+        }],
+        components: [row]
+    }
 }

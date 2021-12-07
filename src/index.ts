@@ -3,21 +3,14 @@ import {
     APIInteractionResponse,
     APIInteraction,
     InteractionType,
-    APIChatInputApplicationCommandInteraction,
-    ApplicationCommandOptionType,
-    ApplicationCommandInteractionDataOptionString,
-    InteractionResponseType,
-    MessageFlags,
-    APIInteractionResponseCallbackData
+    APIChatInputApplicationCommandInteraction
 } from "discord-api-types/v9"
 import express, { Request } from "express"
 import { verifyKey } from "discord-interactions"
-import { FumoClient } from "fumo-api"
-import { Emojis, invite, logger, interactionsLogger, makeResponseData } from "./utils"
+import { logger, interactionsLogger } from "./utils"
 import bodyParser from "body-parser"
-import { embeddable } from "./utils/tools"
+import { handleCommands } from "./interactions"
 
-const client = new FumoClient(true)
 const app = express()
     .use(bodyParser.json())
     .get('*', (req, res) => res.send('this fumo is r'))
@@ -32,60 +25,19 @@ const app = express()
             process.env.PUBLIC_KEY!
         )) return res.status(401).end()
 
-        if (req.body.type === InteractionType.Ping) {
-            interactionsLogger.info('got a pong interaction')
-            return res.json({ type: 1 })
-        }
+        switch (req.body.type) {
+            case InteractionType.Ping:
+                interactionsLogger.info('got a pong interaction')
+                return res.json({ type: 1 })
 
-        else if (req.body.type === InteractionType.ApplicationCommand) {
-            const { data, member, user, guild_id } = req.body as APIChatInputApplicationCommandInteraction
-            const author = guild_id ? member?.user : user
+            case InteractionType.ApplicationCommand:
+                return handleCommands(
+                    req as Request<never, never, APIChatInputApplicationCommandInteraction>,
+                    res
+                )
 
-            interactionsLogger.info(`user: ${author?.username}#${author?.discriminator} [${author?.id}], command ${data.name}, guild id: ${guild_id}`)
-
-            switch (data.name) {
-                case 'get': {
-                    const { value } = data.options
-                        ?.find((option) => option.type === ApplicationCommandOptionType.String) as ApplicationCommandInteractionDataOptionString
-
-                    const fumo = client.cache.get(value) || client.cache.list[parseInt(value) - 1]
-
-                    return res.json({
-                        type: InteractionResponseType.ChannelMessageWithSource,
-                        data: makeResponseData(fumo)
-                    })
-                }
-
-                case 'random': {
-                    const fumo = client.cache.random
-
-                    return res.json({
-                        type: InteractionResponseType.ChannelMessageWithSource,
-                        data: makeResponseData(fumo)
-                    })
-                }
-
-                case 'list': {
-                    const fumos = client.cache.list
-                    return res.json({
-                        type: InteractionResponseType.ChannelMessageWithSource,
-                        data: {
-                            content: `There are a total of **${fumos.length}** fumos, find them with \`/random\`!`,
-                            flags: MessageFlags.Ephemeral
-                        }
-                    })
-                }
-
-                case 'invite': {
-                    return res.json({
-                        type: InteractionResponseType.ChannelMessageWithSource,
-                        data: {
-                            content: `Invite me: [click here](${invite})`,
-                            flags: MessageFlags.Ephemeral
-                        }
-                    })
-                }
-            }
+            case InteractionType.MessageComponent:
+                break
         }
     })
 
