@@ -30,7 +30,7 @@ export function handleComponents(
 
     switch (action) {
         case 'double_previous':
-            page = Math.min(0, page - 10)
+            page = Math.max(1, page - 10)
             break
 
         case 'previous':
@@ -42,7 +42,7 @@ export function handleComponents(
             break
 
         case 'double_next':
-            page = Math.min(fumoClient.cache.size, page + 10)
+            page = Math.max(fumoClient.cache.size, page + 10)
             break
     }
 
