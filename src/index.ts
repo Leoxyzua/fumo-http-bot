@@ -20,8 +20,8 @@ import { embeddable } from "./utils/tools"
 const client = new FumoClient(true)
 const app = express()
     .use(bodyParser.json())
-    .get('/', (req, res) => res.send('this fumo is r'))
-    .post("/fumos", (req: Request<never, APIInteractionResponse, APIInteraction>, res) => {
+    .get('*', (req, res) => res.send('this fumo is r'))
+    .post("/", (req: Request<never, APIInteractionResponse, APIInteraction>, res) => {
         const signature = req.headers["x-signature-ed25519"] as string
         const timestamp = req.headers["x-signature-timestamp"] as string
 
