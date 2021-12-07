@@ -3,13 +3,15 @@ import {
     APIActionRowComponent,
     APIButtonComponentWithCustomId,
     APIEmbed,
+    APIInteractionResponse,
     APIInteractionResponseCallbackData,
     APIUser,
     ButtonStyle,
     ComponentType,
     MessageFlags
 } from "discord-api-types"
-import { Emojis, fumoClient, PaginatorEmojis, videoExtensions } from "."
+import { baseApiUrl, Emojis, fumoClient, PaginatorEmojis, videoExtensions } from "."
+import fetch from "node-fetch"
 
 export function embeddable(link: string) {
     try {
@@ -63,12 +65,12 @@ export function encodeBuffer(object: Record<any, unknown>) {
     return stringBuffer
 }
 
-export function buildPaginationComponents(page: number, author: APIUser): APIActionRowComponent {
+export function buildPaginationComponents(page: number, author_id: string): APIActionRowComponent {
     const buttons: APIButtonComponentWithCustomId[] = PaginatorEmojis
         .map(({ name, id }) => ({
             custom_id: encodeBuffer({
                 page,
-                author,
+                author_id,
                 action: name
             }),
             emoji: { id, name },
@@ -85,8 +87,8 @@ export function buildPaginationComponents(page: number, author: APIUser): APIAct
     }
 }
 
-export function makePaginationResponseData(page: number, author: APIUser): APIInteractionResponseCallbackData {
-    const row = buildPaginationComponents(page, author)
+export function makePaginationResponseData(page: number, author_id: string): APIInteractionResponseCallbackData {
+    const row = buildPaginationComponents(page, author_id)
     const fumo = fumoClient.cache.list[page - 1]
     let content = `Page **${page}** of **${fumoClient.cache.size}**`
 

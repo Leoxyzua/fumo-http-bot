@@ -1,7 +1,7 @@
 import "dotenv/config"
 import { APIApplicationCommand, ApplicationCommandOptionType } from "discord-api-types"
 import fetch from "node-fetch"
-import { logger } from "."
+import { baseApiUrl, logger } from "."
 const { DISCORD_CLIENT_ID, DISCORD_BOT_TOKEN, DISCORD_GUILD_ID } = process.env
 
 const data = [
@@ -34,7 +34,9 @@ const data = [
 ] as Omit<APIApplicationCommand, 'id' | 'application_id' | 'version'>[]
 
 async function deploy() {
-    const url = `https://discord.com/api/v9/applications/${DISCORD_CLIENT_ID}/${DISCORD_GUILD_ID ? `guilds/${DISCORD_GUILD_ID}` : ''}/commands`
+    const url = `${baseApiUrl}/applications/${DISCORD_CLIENT_ID}/${DISCORD_GUILD_ID
+        ? `guilds/${DISCORD_GUILD_ID}`
+        : ''}/commands`
 
     const res = await fetch(url, {
         headers: {

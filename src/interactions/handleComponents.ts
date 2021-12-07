@@ -18,9 +18,9 @@ export function handleComponents(
     res: Response<APIInteractionResponse>
 ) {
     const { data, user } = req.body
-    let { author, action, page } = decodeBuffer(data.custom_id) as CustomIdBufferObject
+    let { author_id, action, page } = decodeBuffer(data.custom_id) as CustomIdBufferObject
 
-    if (author.id !== user?.id) return res.json({
+    if (author_id !== user?.id) return res.json({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
             content: `no lmao`,
@@ -46,7 +46,7 @@ export function handleComponents(
             break
     }
 
-    const paginationData = makePaginationResponseData(page, author)
+    const paginationData = makePaginationResponseData(page, author_id)
 
     if (action === 'cancel') {
         paginationData.content = `${Emojis.error} Paginator cancelled.`

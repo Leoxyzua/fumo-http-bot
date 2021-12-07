@@ -6,14 +6,21 @@ import {
     InteractionResponseType,
     MessageFlags
 } from "discord-api-types"
-import { interactionsLogger, makeFumoResponseData, fumoClient, invite, makePaginationResponseData } from "../utils"
+import {
+    interactionsLogger,
+    makeFumoResponseData,
+    fumoClient,
+    invite,
+    makePaginationResponseData
+} from "../utils"
 import { Request, Response } from "express"
+import fetch from "node-fetch"
 
-export function handleCommands(
+export async function handleCommands(
     req: Request<never, never, APIChatInputApplicationCommandInteraction>,
     res: Response<APIInteractionResponse>
 ) {
-    const { data, member, guild_id } = req.body
+    const { data, member, guild_id, id, token } = req.body
 
     interactionsLogger.info(`user: ${member?.user?.username}#${member?.user?.discriminator} [${member?.user?.id}], command ${data.name}, guild id: ${guild_id}`)
 
@@ -40,10 +47,11 @@ export function handleCommands(
         }
 
         case 'list': {
-            const data = makePaginationResponseData(1, member?.user!)
+            const _data = makePaginationResponseData(1, member?.user?.id!)
+
             return res.json({
                 type: InteractionResponseType.ChannelMessageWithSource,
-                data: data
+                data: _data
             })
         }
 

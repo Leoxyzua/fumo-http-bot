@@ -1,4 +1,3 @@
-import { APIUser } from "discord-api-types"
 import { FumoClient } from "fumo-api"
 
 export enum Emojis {
@@ -17,10 +16,11 @@ export const PaginatorEmojis: Array<{ name: ComponentActionName, id: string }> =
 
 export interface CustomIdBufferObject {
     page: number
-    author: APIUser
+    author_id: string
     action: ComponentActionName
 }
 
 export const videoExtensions = ["mp4", "3gp", "ogg"]
 export const fumoClient = new FumoClient(true)
+export const baseApiUrl = 'https://discord.com/api/v9'
 export const invite = "https://discord.com/api/oauth2/authorize?client_id=916065710038450186&scope=applications.commands"
