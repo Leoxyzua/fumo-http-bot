@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"type": "commonjs",
 	"scripts": {
-		"start": "npm build && node .",
+		"start": "npm run build && node .",
 		"deploy": "ts-node-dev src/deploy.ts",
 		"build": "tsc",
 		"prettier": "prettier --write **/*.{ts,json}",
