@@ -8,12 +8,16 @@ import {
     ComponentType,
     MessageFlags,
 } from 'discord-api-types'
-import { Emojis, fumoClient, PaginatorEmojis, videoExtensions } from '.'
+import { Emojis, fumoClient, PaginatorEmojis, ReloadButton, videoExtensions } from '.'
 
 export function embeddable(link: string) {
     try {
         const url = new URL(link)
-        return !videoExtensions.includes(url.pathname.split('.').pop()!)
+        const extension = url.pathname.split('.').pop()
+
+        if (!extension) return false
+
+        return !videoExtensions.includes(extension)
     } catch {
         return false
     }
@@ -110,4 +114,27 @@ export function makePaginationResponseData(
         ],
         components: [row],
     }
+}
+
+export function buildRandomFumoComponents(author_id: string): APIActionRowComponent {
+    const button: APIButtonComponentWithCustomId = {
+        custom_id: encodeBuffer({ author_id }),
+        emoji: ReloadButton,
+        style: ButtonStyle.Primary,
+        type: ComponentType.Button
+    }
+
+    return {
+        type: ComponentType.ActionRow,
+        components: [button]
+    }
+}
+
+export function makeRandomFumoData(author_id: string): APIInteractionResponseCallbackData {
+    const random = fumoClient.cache.random()
+    const data = makeFumoResponseData(random)
+
+    data.components = [buildRandomFumoComponents(author_id)]
+
+    return data
 }
