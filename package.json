@@ -13,13 +13,13 @@
   "license": "MIT",
   "dependencies": {
     "@dimensional-fun/logger": "^1.0.1",
+    "@leoua/fumo-api": "^2.0.6",
     "@types/node-fetch": "2",
     "body-parser": "^1.19.0",
     "discord-api-types": "^0.25.2",
     "discord-interactions": "^2.4.1",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "fumo-api": "Leoxyzua/fumo-api#master",
     "node-fetch": "^2.6.6"
   },
   "devDependencies": {

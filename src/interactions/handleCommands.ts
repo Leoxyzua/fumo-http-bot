@@ -38,7 +38,7 @@ export async function handleCommands(
         }
 
         case 'random': {
-            const fumo = fumoClient.cache.random
+            const fumo = fumoClient.cache.random()
 
             return res.json({
                 type: InteractionResponseType.ChannelMessageWithSource,

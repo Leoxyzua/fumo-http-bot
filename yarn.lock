@@ -23,6 +23,13 @@
     color-convert "^2.0.1"
     fecha "^4.2.0"
 
+"@leoua/fumo-api@^2.0.6":
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/@leoua/fumo-api/-/fumo-api-2.0.6.tgz#f3520e38238ca024cad36a7b00f8e95b61e13b41"
+  integrity sha512-xPcqd5rdtHbsUV5flL05osB4T2DUfAK8QyKwz65beE91RIhH3AIzOmAwokrLP1jRxVIGK1itgRPpdGMNntV19A==
+  dependencies:
+    node-fetch "^2.6.1"
+
 "@tsconfig/node10@^1.0.7":
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/@tsconfig/node10/-/node10-1.0.8.tgz#c1e4e80d6f964fbecb3359c43bd48b40f7cadad9"
@@ -356,12 +363,6 @@ fresh@0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
   integrity sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
-
-fumo-api@Leoxyzua/fumo-api#master:
-  version "2.0.4"
-  resolved "https://codeload.github.com/Leoxyzua/fumo-api/tar.gz/0def52a4840511adfb7efd2d14c7f74e20da18a1"
-  dependencies:
-    node-fetch "^2.6.1"
 
 http-errors@1.7.2:
   version "1.7.2"

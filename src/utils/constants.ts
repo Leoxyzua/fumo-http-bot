@@ -1,4 +1,4 @@
-import { FumoClient } from "fumo-api"
+import { FumoClient } from "@leoua/fumo-api"
 
 export enum Emojis {
     error = "`❌`"
