@@ -46,8 +46,6 @@ export async function handleCommands(
 
             randomFumoData.components = [buildRandomFumoComponents(member?.user?.id!)]
 
-            console.log(randomFumoData)
-
             return res.json({
                 type: InteractionResponseType.ChannelMessageWithSource,
                 data: randomFumoData,
