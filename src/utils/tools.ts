@@ -1,17 +1,14 @@
-import { FumoData } from "fumo-api"
+import { FumoData } from '@leoua/fumo-api'
 import {
     APIActionRowComponent,
     APIButtonComponentWithCustomId,
     APIEmbed,
-    APIInteractionResponse,
     APIInteractionResponseCallbackData,
-    APIUser,
     ButtonStyle,
     ComponentType,
-    MessageFlags
-} from "discord-api-types"
-import { baseApiUrl, Emojis, fumoClient, PaginatorEmojis, videoExtensions } from "."
-import fetch from "node-fetch"
+    MessageFlags,
+} from 'discord-api-types'
+import { Emojis, fumoClient, PaginatorEmojis, videoExtensions } from '.'
 
 export function embeddable(link: string) {
     try {
@@ -24,26 +21,32 @@ export function embeddable(link: string) {
 
 export function baseEmbed(id: string): APIEmbed {
     return {
-        color: 0x2F3136,
-        footer: { text: `ID: ${id}` }
+        color: 0x2f3136,
+        footer: { text: `ID: ${id}` },
     }
 }
 
 export function makeFumoResponseData(fumo?: FumoData): APIInteractionResponseCallbackData {
-    if (!fumo) return {
-        content: `${Emojis.error} Fumo not found.`,
-        flags: MessageFlags.Ephemeral
-    }
+    if (!fumo)
+        return {
+            content: `${Emojis.error} Fumo not found.`,
+            flags: MessageFlags.Ephemeral,
+        }
 
     const data: APIInteractionResponseCallbackData = embeddable(fumo.URL)
         ? {
-            embeds: [{
-                image: {
-                    url: fumo.URL
+            embeds: [
+                {
+                    image: {
+                        url: fumo.URL,
+                    },
+                    ...baseEmbed(fumo._id),
                 },
-                ...baseEmbed(fumo._id)
-            }]
-        } : { content: fumo.URL, embeds: [baseEmbed(fumo._id)] }
+            ],
+        } : {
+            content: fumo.URL,
+            embeds: [baseEmbed(fumo._id)],
+        }
 
     return data
 }
@@ -66,28 +69,30 @@ export function encodeBuffer(object: Record<any, unknown>) {
 }
 
 export function buildPaginationComponents(page: number, author_id: string): APIActionRowComponent {
-    const buttons: APIButtonComponentWithCustomId[] = PaginatorEmojis
-        .map(({ name, id }) => ({
-            custom_id: encodeBuffer({
-                page,
-                author_id,
-                action: name
-            }),
-            emoji: { id, name },
-            type: ComponentType.Button,
-            disabled:
-                (['double_previous', 'previous'].includes(name) && page === 1) ||
-                (['double_next', 'next'].includes(name) && page === fumoClient.cache.size),
-            style: name === 'cancel' ? ButtonStyle.Danger : ButtonStyle.Primary
-        }))
+    const buttons: APIButtonComponentWithCustomId[] = PaginatorEmojis.map(({ name, id }) => ({
+        custom_id: encodeBuffer({
+            page,
+            author_id,
+            action: name,
+        }),
+        emoji: { id, name },
+        type: ComponentType.Button,
+        disabled:
+            (['double_previous', 'previous'].includes(name) && page === 1) ||
+            (['double_next', 'next'].includes(name) && page === fumoClient.cache.size),
+        style: name === 'cancel' ? ButtonStyle.Danger : ButtonStyle.Primary,
+    }))
 
     return {
         type: ComponentType.ActionRow,
-        components: buttons
+        components: buttons,
     }
 }
 
-export function makePaginationResponseData(page: number, author_id: string): APIInteractionResponseCallbackData {
+export function makePaginationResponseData(
+    page: number,
+    author_id: string
+): APIInteractionResponseCallbackData {
     const row = buildPaginationComponents(page, author_id)
     const fumo = fumoClient.cache.list[page - 1]
     let content = `Page **${page}** of **${fumoClient.cache.size}**`
@@ -96,14 +101,13 @@ export function makePaginationResponseData(page: number, author_id: string): API
 
     return {
         content,
-        embeds: [{
-            color: 0x2F3136,
-            description: [
-                `**ID**: ${fumo._id}`,
-                `**URL**: [click here](${fumo.URL})`
-            ].join('\n'),
-            image: content.endsWith('**') ? { url: fumo.URL } : undefined
-        }],
-        components: [row]
+        embeds: [
+            {
+                color: 0x2f3136,
+                description: [`**ID**: ${fumo._id}`, `**URL**: [click here](${fumo.URL})`].join('\n'),
+                image: content.endsWith('**') ? { url: fumo.URL } : undefined,
+            },
+        ],
+        components: [row],
     }
 }
