@@ -121,12 +121,12 @@ export function buildRandomFumoComponents(author_id: string): APIActionRowCompon
         custom_id: encodeBuffer({ author_id }),
         emoji: ReloadButton,
         style: ButtonStyle.Primary,
-        type: ComponentType.Button
+        type: ComponentType.Button,
     }
 
     return {
         type: ComponentType.ActionRow,
-        components: [button]
+        components: [button],
     }
 }
 

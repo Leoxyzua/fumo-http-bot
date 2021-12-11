@@ -12,6 +12,7 @@ import {
 	fumoClient,
 	invite,
 	makePaginationResponseData,
+	buildRandomFumoComponents,
 } from '../utils'
 import { Request, Response } from 'express'
 
@@ -41,10 +42,13 @@ export async function handleCommands(
 
 		case 'random': {
 			const fumo = fumoClient.cache.random()
+			const randomFumoData = makeFumoResponseData(fumo)
+
+			randomFumoData.components = [buildRandomFumoComponents(member?.user?.id!)]
 
 			return res.json({
 				type: InteractionResponseType.ChannelMessageWithSource,
-				data: makeFumoResponseData(fumo),
+				data: randomFumoData,
 			})
 		}
 
