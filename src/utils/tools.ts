@@ -8,19 +8,36 @@ import {
     ComponentType,
     MessageFlags,
 } from 'discord-api-types'
-import { Emojis, fumoClient, PaginatorEmojis, ReloadButton, videoExtensions } from '.'
+import { Emojis, FilterType, fumoClient, PaginatorEmojis, ReloadButton, videoExtensions } from '.'
 
-export function embeddable(link: string) {
-    try {
-        const url = new URL(link)
-        const extension = url.pathname.split('.').pop()
+export function isVideo(link: string) {
+    const url = new URL(link)
+    const extension = url.pathname.split('.').pop()
 
-        if (!extension) return false
+    if (!extension) return false
 
-        return !videoExtensions.includes(extension)
-    } catch {
-        return false
-    }
+    return videoExtensions.includes(extension)
+}
+
+export function isGif(link: string) {
+    const url = new URL(link)
+    const extension = url.pathname.split('.').pop()
+
+    return extension === 'gif'
+}
+
+export function isImage(link: string) {
+    return !isGif(link) && !isVideo(link)
+}
+
+export function getRandomFumoByFilter(filter: FilterType) {
+    const filterFunction = filter === 'only_gifs'
+        ? isGif
+        : filter === 'only_videos'
+            ? isVideo
+            : isImage
+
+    return fumoClient.cache.random((fumo) => filterFunction(fumo.URL))
 }
 
 export function baseEmbed(id: string): APIEmbed {
@@ -37,8 +54,11 @@ export function makeFumoResponseData(fumo?: FumoData): APIInteractionResponseCal
             flags: MessageFlags.Ephemeral,
         }
 
-    const data: APIInteractionResponseCallbackData = embeddable(fumo.URL)
+    const data: APIInteractionResponseCallbackData = isVideo(fumo.URL)
         ? {
+            content: fumo.URL,
+            embeds: [baseEmbed(fumo._id)],
+        } : {
             embeds: [
                 {
                     image: {
@@ -47,9 +67,6 @@ export function makeFumoResponseData(fumo?: FumoData): APIInteractionResponseCal
                     ...baseEmbed(fumo._id),
                 },
             ],
-        } : {
-            content: fumo.URL,
-            embeds: [baseEmbed(fumo._id)],
         }
 
     return data
@@ -101,7 +118,7 @@ export function makePaginationResponseData(
     const fumo = fumoClient.cache.list[page - 1]
     let content = `Page **${page}** of **${fumoClient.cache.size}**`
 
-    if (!embeddable(fumo.URL)) content += `\n\n${fumo.URL}`
+    if (isVideo(fumo.URL)) content += `\n\n${fumo.URL}`
 
     return {
         content,
@@ -116,9 +133,12 @@ export function makePaginationResponseData(
     }
 }
 
-export function buildRandomFumoComponents(author_id: string): APIActionRowComponent {
+export function buildRandomFumoComponents(author_id: string, filter: FilterType): APIActionRowComponent {
     const button: APIButtonComponentWithCustomId = {
-        custom_id: encodeBuffer({ author_id }),
+        custom_id: encodeBuffer({
+            author_id,
+            filter
+        }),
         emoji: ReloadButton,
         style: ButtonStyle.Primary,
         type: ComponentType.Button,
@@ -130,11 +150,11 @@ export function buildRandomFumoComponents(author_id: string): APIActionRowCompon
     }
 }
 
-export function makeRandomFumoData(author_id: string): APIInteractionResponseCallbackData {
-    const random = fumoClient.cache.random()
+export function makeRandomFumoData(author_id: string, filter: FilterType): APIInteractionResponseCallbackData {
+    const random = getRandomFumoByFilter(filter)
     const data = makeFumoResponseData(random)
 
-    data.components = [buildRandomFumoComponents(author_id)]
+    data.components = [buildRandomFumoComponents(author_id, filter)]
 
     return data
 }

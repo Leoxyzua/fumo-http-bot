@@ -12,6 +12,7 @@ export const ReloadButton: APIMessageComponentEmoji = {
     id: '848380144338993174',
 }
 
+export type FilterType = `only_${'videos' | 'images' | 'gifs'}`
 export type ComponentActionName = 'double_previous' | 'previous' | 'cancel' | 'next' | 'double_next'
 
 export const PaginatorEmojis: Array<{
@@ -32,8 +33,9 @@ export const PaginatorEmojis: Array<{
     ]
 
 export interface ComponentButtonBuffer {
-    page?: number
     author_id: string
+    page?: number
+    filter?: FilterType
     action?: ComponentActionName
 }
 

@@ -22,6 +22,25 @@ const data = [
 		name: 'random',
 		description: 'Get a random fumo',
 		type: 1,
+		options: [{
+			name: 'filter',
+			description: 'Specific type of fumo images to get',
+			type: ApplicationCommandOptionType.String,
+			choices: [
+				{
+					name: 'Only Images',
+					value: 'only_images'
+				},
+				{
+					name: 'Only Gifs',
+					value: 'only_gifs'
+				},
+				{
+					name: 'Only Videos',
+					value: 'only_videos'
+				}
+			]
+		}]
 	},
 	{
 		name: 'list',
@@ -33,12 +52,11 @@ const data = [
 		description: 'Invite me',
 		type: 1,
 	},
-] as Omit<APIApplicationCommand, 'id' | 'application_id' | 'version'>[]
+] as APIApplicationCommand[]
 
 async function deploy() {
-	const url = `${baseApiUrl}/applications/${DISCORD_CLIENT_ID}/${
-		DISCORD_GUILD_ID ? `guilds/${DISCORD_GUILD_ID}` : ''
-	}/commands`
+	const url = `${baseApiUrl}/applications/${DISCORD_CLIENT_ID}/${DISCORD_GUILD_ID ? `guilds/${DISCORD_GUILD_ID}` : ''
+		}/commands`
 
 	const res = await fetch(url, {
 		headers: {
