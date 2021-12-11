@@ -12,7 +12,7 @@ export const ReloadButton: APIMessageComponentEmoji = {
     id: '848380144338993174',
 }
 
-export type FilterType = `only_${'videos' | 'images' | 'gifs'}`
+export type FilterType = `only_${'videos' | 'images' | 'gifs'}` | 'none'
 export type ComponentActionName = 'double_previous' | 'previous' | 'cancel' | 'next' | 'double_next'
 
 export const PaginatorEmojis: Array<{

@@ -35,7 +35,9 @@ export function getRandomFumoByFilter(filter: FilterType) {
         ? isGif
         : filter === 'only_videos'
             ? isVideo
-            : isImage
+            : filter === 'only_images'
+                ? isImage
+                : () => true
 
     return fumoClient.cache.random((fumo) => filterFunction(fumo.URL))
 }
@@ -56,8 +58,7 @@ export function makeFumoResponseData(fumo?: FumoData): APIInteractionResponseCal
 
     const data: APIInteractionResponseCallbackData = isVideo(fumo.URL)
         ? {
-            content: fumo.URL,
-            embeds: [baseEmbed(fumo._id)],
+            content: [`**ID:** ${fumo._id}`, fumo.URL].join('\n'),
         } : {
             embeds: [
                 {
@@ -116,17 +117,17 @@ export function makePaginationResponseData(
 ): APIInteractionResponseCallbackData {
     const row = buildPaginationComponents(page, author_id)
     const fumo = fumoClient.cache.list[page - 1]
-    let content = `Page **${page}** of **${fumoClient.cache.size}**`
+    const description = [`Page **${page}** of **${fumoClient.cache.size}**`]
 
-    if (isVideo(fumo.URL)) content += `\n\n${fumo.URL}`
+    if (isVideo(fumo.URL)) description.push('', '', `**ID:** ${fumo._id}`, `${fumo.URL}`)
 
     return {
-        content,
-        embeds: [
+        content: description.join('\n'),
+        embeds: isVideo(fumo.URL) ? undefined : [
             {
                 color: 0x2f3136,
                 description: [`**ID**: ${fumo._id}`, `**URL**: [click here](${fumo.URL})`].join('\n'),
-                image: content.endsWith('**') ? { url: fumo.URL } : undefined,
+                image: { url: fumo.URL }
             },
         ],
         components: [row],

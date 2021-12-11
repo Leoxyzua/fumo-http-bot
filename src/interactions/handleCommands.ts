@@ -43,9 +43,9 @@ export async function handleCommands(
         }
 
         case 'random': {
-            const filter = (data.options?.find(
+            const filter = ((data.options?.find(
                 (option) => option.type === ApplicationCommandOptionType.String
-            ) as ApplicationCommandInteractionDataOptionString).value as FilterType
+            ) as ApplicationCommandInteractionDataOptionString).value ?? 'none') as FilterType
 
             const fumo = getRandomFumoByFilter(filter)
             const randomFumoData = makeFumoResponseData(fumo)
