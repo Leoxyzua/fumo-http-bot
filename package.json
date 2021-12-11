@@ -7,7 +7,7 @@
 	"scripts": {
 		"start": "npm run build && node .",
 		"deploy": "ts-node-dev src/deploy.ts",
-		"build": "tsc",
+		"build": "npx tsc",
 		"prettier": "prettier --write **/*.{ts,json}",
 		"lint": "eslint . --ext .ts"
 	},
