@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { APIApplicationCommand, ApplicationCommandOptionType } from 'discord-api-types'
 import fetch from 'node-fetch'
-import { baseApiUrl, logger } from '.'
+import { baseApiUrl, logger } from './utils'
 const { DISCORD_CLIENT_ID, DISCORD_BOT_TOKEN, DISCORD_GUILD_ID } = process.env
 
 const data = [
