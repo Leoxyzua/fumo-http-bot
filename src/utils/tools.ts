@@ -8,7 +8,16 @@ import {
     ComponentType,
     MessageFlags,
 } from 'discord-api-types'
-import { Emojis, FilterType, fumoClient, PaginatorEmojis, ReloadButton, videoExtensions } from '.'
+
+import {
+    Emojis,
+    FilterType,
+    fumoClient,
+    PaginatorEmojis,
+    ReloadButton,
+    ReplyIcon,
+    videoExtensions
+} from '.'
 
 export function isVideo(link: string) {
     const url = new URL(link)
@@ -101,7 +110,7 @@ export function buildPaginationComponents(page: number, author_id: string): APIA
         type: ComponentType.Button,
         disabled:
             (['double_previous', 'previous'].includes(name) && page === 1) ||
-            (['double_next', 'next'].includes(name) && page === fumoClient.cache.size),
+            (['double_next', 'next'].includes(name) && page === Math.ceil(fumoClient.cache.list.length / 4)),
         style: name === 'cancel' ? ButtonStyle.Danger : ButtonStyle.Primary,
     }))
 
@@ -113,23 +122,33 @@ export function buildPaginationComponents(page: number, author_id: string): APIA
 
 export function makePaginationResponseData(
     page: number,
-    author_id: string
+    author_id: string,
+    fumosPerPage = 4
 ): APIInteractionResponseCallbackData {
-    const row = buildPaginationComponents(page, author_id)
-    const fumo = fumoClient.cache.list[page - 1]
-    const description = [`Page **${page}** of **${fumoClient.cache.size}**`]
+    const { list } = fumoClient.cache
+    const pages = (page - 1) * fumosPerPage
+    const allPages = Math.ceil(list.length / fumosPerPage)
+    const fumos = list.slice(pages, pages + fumosPerPage)
 
-    if (isVideo(fumo.URL)) description.push('', '', `**ID:** ${fumo._id}`, `${fumo.URL}`)
+    const row = buildPaginationComponents(page, author_id)
+    const ids = fumos.map(({ _id }) => _id)
+
+    const embeds: APIEmbed[] = fumos.map((fumo, index) => {
+        const description = listDescription(pages, ids)
+
+        return {
+            color: 0x2f3136,
+            description,
+            image: {
+                url: fumo.URL
+            },
+            url: fumoClient.url,
+        }
+    })
 
     return {
-        content: description.join('\n'),
-        embeds: isVideo(fumo.URL) ? undefined : [
-            {
-                color: 0x2f3136,
-                description: [`**ID**: ${fumo._id}`, `**URL**: [click here](${fumo.URL})`].join('\n'),
-                image: { url: fumo.URL }
-            },
-        ],
+        content: `Page **${page}** of **${allPages}**`,
+        embeds,
         components: [row],
     }
 }
@@ -158,4 +177,44 @@ export function makeRandomFumoData(author_id: string, filter: FilterType): APIIn
     data.components = [buildRandomFumoComponents(author_id, filter)]
 
     return data
+}
+
+export function listDescription(startIndex: number, ids: string[]) {
+    let text = ''
+
+    ids.map((_, i) => {
+        const isOdd = !!(i % 2)
+        i++
+        const plusr = startIndex > 60 && startIndex < 100
+            ? -2
+            : startIndex > 100
+                ? -3 : 0
+
+        const format = `**#${startIndex + i}**` + ' '.repeat([2, 4].includes(i) ? 0 : 26 + plusr)
+        text += format
+        if (isOdd) {
+            text += '\n'
+            const [left, right] = [i - 2, i - 1]
+            text += [
+                ReplyIcon,
+                ids[left],
+                ' ',
+                ReplyIcon,
+                ids[right] + '\n'
+            ].join(' ')
+        }
+
+        if (i === 2) text += '\n'
+    })
+
+    return text
+}
+
+export function codeblock(text: string) {
+    const key = '`'
+    return [
+        key.repeat(3),
+        text,
+        key.repeat(3)
+    ].join('\n')
 }

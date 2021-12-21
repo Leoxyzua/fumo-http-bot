@@ -32,6 +32,8 @@ export const PaginatorEmojis: Array<{
         },
     ]
 
+export const ReplyIcon = '<:reply:889026059738169405>'
+
 export interface ComponentButtonBuffer {
     author_id: string
     page?: number
